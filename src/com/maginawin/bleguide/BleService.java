@@ -277,16 +277,19 @@ public class BleService extends Service {
 	}
 
 	protected void bleNotSupported() {
+		Log.d(TAG, "ble not supported.");
 		Intent intent = new Intent(BLE_NOT_SUPPORTED);
 		sendBroadcast(intent);
 	}
 
 	protected void bleNotBTAdapter() {
+		Log.d(TAG, "ble not bt adapter.");
 		Intent intent = new Intent(BLE_NOT_BT_ADAPTER);
 		sendBroadcast(intent);
 	}
 	
 	protected void bleStatusAbnormal() {
+		Log.d(TAG, "ble status abnormal.");
 		Intent intent = new Intent(BLE_STATUS_ABNORMAL);
 		sendBroadcast(intent);
 	}
@@ -294,7 +297,7 @@ public class BleService extends Service {
 	protected void bleDeviceFound(BluetoothDevice device, int rssi,
 			byte[] scanRecord) {
 		Log.d(TAG, "device found " + device.getAddress());
-		Intent intent = new Intent(BleService.BLE_SERVICE_DISCOVERED);
+		Intent intent = new Intent(BleService.BLE_DEVICE_FOUND);
 		intent.putExtra(BleService.EXTRA_DEVICE, device);
 		intent.putExtra(BleService.EXTRA_RSSI, rssi);
 		intent.putExtra(BleService.EXTRA_SCAN_RECORD, scanRecord);
