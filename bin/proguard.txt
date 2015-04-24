@@ -1,0 +1,18 @@
+# view AndroidManifest.xml #generated:18
+-keep class com.maginawin.bleguide.BleApplication { <init>(...); }
+
+# view AndroidManifest.xml #generated:41
+-keep class com.maginawin.bleguide.BleGattCharItemActivity { <init>(...); }
+
+# view AndroidManifest.xml #generated:37
+-keep class com.maginawin.bleguide.BleGattCharsActivity { <init>(...); }
+
+# view AndroidManifest.xml #generated:33
+-keep class com.maginawin.bleguide.BleGattServicesActivity { <init>(...); }
+
+# view AndroidManifest.xml #generated:46
+-keep class com.maginawin.bleguide.BleService { <init>(...); }
+
+# view AndroidManifest.xml #generated:24
+-keep class com.maginawin.bleguide.MainActivity { <init>(...); }
+

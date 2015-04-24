@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">BleGuide</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_ble_gatt_services">BleGattServicesActivity</string>
+    <string name="title_activity_ble_gatt_chars">BleGattCharsActivity</string>
+    <string name="title_activity_ble_gatt_char_item">BleGattCharItemActivity</string>
+
+</resources>
