@@ -12,22 +12,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
-	private static final String TAG = "MainActivity";
+//	private static final String TAG = "MainActivity";
 
 	private ActionBar actionBar;
 	private ListView bleDevicesListView;
@@ -183,7 +179,7 @@ public class MainActivity extends Activity {
 			if (devicesArray.size() > 0) {
 				ViewHolder holder = new ViewHolder();
 				convertView = LayoutInflater.from(getApplicationContext())
-						.inflate(R.layout.item_ble_devices, null);
+						.inflate(R.layout.item_ble_devices, parent, false);
 				holder.deviceName = (TextView) convertView
 						.findViewById(R.id.device_name);
 				holder.deviceAddress = (TextView) convertView

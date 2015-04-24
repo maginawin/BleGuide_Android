@@ -1,12 +1,10 @@
 package com.maginawin.bleguide;
 
-import java.util.Date;
 import java.util.UUID;
 
 import android.app.Service;
 import android.bluetooth.*;
 import android.bluetooth.BluetoothAdapter.LeScanCallback;
-import android.bluetooth.le.BluetoothLeScanner;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -56,7 +54,6 @@ public class BleService extends Service {
 	private BluetoothGatt mBluetoothGatt;
 	private BluetoothDevice mBluetoothDevice;
 	private boolean isScanning;
-	private String mAddress;
 	private Handler mHandler;
 
 	private final LeScanCallback mLeScanCallback = new LeScanCallback() {
