@@ -11,6 +11,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -32,6 +33,7 @@ public class MainActivity extends Activity {
 	private ListView bleDevicesListView;
 	private List<BluetoothDevice> devicesArray;
 	private BleDevicesAdapter bleDevicesAdapter;
+	private boolean isScanning;
 
 	private BroadcastReceiver mReceiver = new BroadcastReceiver() {
 
@@ -58,6 +60,12 @@ public class MainActivity extends Activity {
 						}
 					});
 				}
+			} else if (BleService.BLE_DEVICE_SCANING.equals(action)) {
+				isScanning = true;
+				invalidateOptionsMenu();
+			} else if (BleService.BLE_DEVICE_STOP_SCAN.equals(action)) {
+				isScanning = false;
+				invalidateOptionsMenu();
 			}
 		}
 	};
@@ -69,6 +77,7 @@ public class MainActivity extends Activity {
 
 		devicesArray = new ArrayList<BluetoothDevice>();
 		bleDevicesAdapter = new BleDevicesAdapter();
+		isScanning = false;
 
 		actionBar = getActionBar();
 		// Set is show app icon in action bar.
@@ -83,8 +92,19 @@ public class MainActivity extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// TODO Auto-generated method stub
-		MenuInflater inflater = new MenuInflater(this);
-		inflater.inflate(R.menu.menu_main, menu);
+		MenuInflater mInflater = new MenuInflater(this);
+		mInflater.inflate(R.menu.menu_main, menu);
+		MenuItem scan = menu.findItem(R.id.scan_ble_item);
+		MenuItem stop = menu.findItem(R.id.stop_scan_item);
+		if (isScanning) {
+			scan.setTitle("Scanning");
+			scan.setEnabled(false);
+			stop.setEnabled(true);
+		} else {
+			scan.setTitle("Scan");
+			scan.setEnabled(true);
+			stop.setEnabled(false);
+		}
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -100,8 +120,6 @@ public class MainActivity extends Activity {
 		} else if (itemId == R.id.scan_ble_item) {
 			scanBleDevices(true);
 		} else if (itemId == R.id.stop_scan_item) {
-			devicesArray.clear();
-			bleDevicesAdapter.notifyDataSetChanged();
 			scanBleDevices(false);
 		}
 		return super.onOptionsItemSelected(item);
@@ -114,7 +132,14 @@ public class MainActivity extends Activity {
 
 		bleDevicesAdapter.notifyDataSetChanged();
 		registerReceiver(mReceiver, BleService.getIntentFilter());
-		// scanBleDevices(true);
+		new Handler().postDelayed(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				scanBleDevices(true);
+			}
+		}, 2000);
 	}
 
 	@Override

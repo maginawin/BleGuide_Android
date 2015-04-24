@@ -19,13 +19,15 @@ import android.widget.Toast;
 
 public class BleService extends Service {
 	private static final String TAG = "BleService";
-	private static final int SCAN_PERIOD = 10000;
+	private static final int SCAN_PERIOD = 20000;
 
 	/** Intent for broadcast */
 	public static final String BLE_NOT_SUPPORTED = "com.maginawin.bleguide.BLE_NOT_SUPPORTED";
 	public static final String BLE_NOT_BT_ADAPTER = "com.maginawin.bleguide.BLE_NOT_BT_ADAPTER";
 	public static final String BLE_STATUS_ABNORMAL = "com.maginawin.bleguide.BLE_STATUS_ABNORMAL";
 	public static final String BLE_DEVICE_FOUND = "com.maginawin.bleguide.BLE_DEVICE_FOUND";
+	public static final String BLE_DEVICE_SCANING = "com.maginawin.bleguide.BLE_DEVICE_SCAN";
+	public static final String BLE_DEVICE_STOP_SCAN = "com.maginawin.bleguide.BLE_DEVICE_STOP_SCAN";
 	public static final String BLE_GATT_CONNECTED = "com.maginawin.bleguide.BEL_GATT_CONNECTED";
 	public static final String BLE_GATT_DISCONNECTED = "com.maginawin.bleguide.BLE_GATT_DISCONNECTED";
 	public static final String BLE_SERVICE_DISCOVERED = "com.maginawin.bleguide.BLE_SERVICE_DISCOVERED";
@@ -160,6 +162,8 @@ public class BleService extends Service {
 		filter.addAction(BLE_NOT_BT_ADAPTER);
 		filter.addAction(BLE_STATUS_ABNORMAL);
 		filter.addAction(BLE_DEVICE_FOUND);
+		filter.addAction(BLE_DEVICE_SCANING);
+		filter.addAction(BLE_DEVICE_STOP_SCAN);
 		filter.addAction(BLE_GATT_CONNECTED);
 		filter.addAction(BLE_GATT_DISCONNECTED);
 		filter.addAction(BLE_SERVICE_DISCOVERED);
@@ -186,10 +190,12 @@ public class BleService extends Service {
 					}, SCAN_PERIOD);
 					isScanning = true;
 					mBluetoothAdapter.startLeScan(mLeScanCallback);
+					bleDeviceScanning();
 				}
 			} else {
 				isScanning = false;
 				mBluetoothAdapter.stopLeScan(mLeScanCallback);
+				bleDeviceStopScan();
 			}
 		}
 	}
@@ -287,7 +293,7 @@ public class BleService extends Service {
 		Intent intent = new Intent(BLE_NOT_BT_ADAPTER);
 		sendBroadcast(intent);
 	}
-	
+
 	protected void bleStatusAbnormal() {
 		Log.d(TAG, "ble status abnormal.");
 		Intent intent = new Intent(BLE_STATUS_ABNORMAL);
@@ -301,6 +307,18 @@ public class BleService extends Service {
 		intent.putExtra(BleService.EXTRA_DEVICE, device);
 		intent.putExtra(BleService.EXTRA_RSSI, rssi);
 		intent.putExtra(BleService.EXTRA_SCAN_RECORD, scanRecord);
+		sendBroadcast(intent);
+	}
+
+	protected void bleDeviceScanning() {
+		Log.d(TAG, "ble device scanning.");
+		Intent intent = new Intent(BleService.BLE_DEVICE_SCANING);
+		sendBroadcast(intent);
+	}
+
+	protected void bleDeviceStopScan() {
+		Log.d(TAG, "ble device stop scan.");
+		Intent intent = new Intent(BleService.BLE_DEVICE_STOP_SCAN);
 		sendBroadcast(intent);
 	}
 
