@@ -37,6 +37,7 @@ public class BleApplication extends Application {
 	public void onTerminate() {
 		// TODO Auto-generated method stub
 		super.onTerminate();
+		mService.disconnectBleDevice();
 		unbindService(mServiceConnection);
 	}
 

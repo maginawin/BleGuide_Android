@@ -18,12 +18,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
-//	private static final String TAG = "MainActivity";
+	// private static final String TAG = "MainActivity";
 
 	private ActionBar actionBar;
 	private ListView bleDevicesListView;
@@ -62,6 +64,10 @@ public class MainActivity extends Activity {
 			} else if (BleService.BLE_DEVICE_STOP_SCAN.equals(action)) {
 				isScanning = false;
 				invalidateOptionsMenu();
+			} else if (BleService.BLE_SERVICE_DISCOVERED.equals(action)) {
+				Intent servicesIntent = new Intent(MainActivity.this,
+						BleGattServicesActivity.class);
+				startActivity(servicesIntent);
 			}
 		}
 	};
@@ -83,6 +89,17 @@ public class MainActivity extends Activity {
 
 		bleDevicesListView = (ListView) findViewById(R.id.ble_devices_list_view);
 		bleDevicesListView.setAdapter(bleDevicesAdapter);
+
+		bleDevicesListView.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				// TODO Auto-generated method stub
+				BluetoothDevice device = devicesArray.get(position);
+				ConnectBleDevice(device);
+			}
+		});
 	}
 
 	@Override
@@ -128,14 +145,7 @@ public class MainActivity extends Activity {
 
 		bleDevicesAdapter.notifyDataSetChanged();
 		registerReceiver(mReceiver, BleService.getIntentFilter());
-		new Handler().postDelayed(new Runnable() {
-			
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				scanBleDevices(true);
-			}
-		}, 2000);
+		invalidateOptionsMenu();
 	}
 
 	@Override
@@ -149,8 +159,20 @@ public class MainActivity extends Activity {
 	}
 
 	private void scanBleDevices(final boolean enable) {
+		devicesArray.clear();
+		bleDevicesAdapter.notifyDataSetChanged();
 		BleApplication app = (BleApplication) getApplication();
 		app.getBleService().scanBleDevices(enable);
+	}
+
+	private void connectBleDevice(String address) {
+		BleApplication app = (BleApplication) getApplication();
+		app.getBleService().connectBleDevice(address);
+	}
+
+	private void ConnectBleDevice(BluetoothDevice device) {
+		BleApplication app = (BleApplication) getApplication();
+		app.getBleService().connectBleDevice(device);
 	}
 
 	private class BleDevicesAdapter extends BaseAdapter {

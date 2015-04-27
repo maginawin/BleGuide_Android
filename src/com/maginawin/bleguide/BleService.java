@@ -153,6 +153,13 @@ public class BleService extends Service {
 		return super.onStartCommand(intent, flags, startId);
 	}
 
+	@Override
+	public boolean onUnbind(Intent intent) {
+		// TODO Auto-generated method stub
+		disconnectBleDevice();
+		return super.onUnbind(intent);
+	}
+
 	public static IntentFilter getIntentFilter() {
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(BLE_NOT_SUPPORTED);
@@ -169,6 +176,10 @@ public class BleService extends Service {
 		filter.addAction(BLE_CHARACTERISTIC_WRITE);
 		filter.addAction(BLE_CHARACTERISTIC_CHANGED);
 		return filter;
+	}
+
+	public BluetoothGatt getBluetoothGatt() {
+		return mBluetoothGatt;
 	}
 
 	@SuppressWarnings("deprecation")

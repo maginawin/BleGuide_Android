@@ -3,12 +3,12 @@
 
     <item
         android:id="@+id/stop_scan_item"
-        android:showAsAction="ifRoom"
+        android:showAsAction="always"
         android:title="Stop">
     </item>
     <item
         android:id="@+id/scan_ble_item"
-        android:showAsAction="ifRoom"
+        android:showAsAction="always"
         android:title="Scan">
     </item>
 
