@@ -3,6 +3,10 @@ package com.maginawin.bleguide;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mymcu.bleapi.WMBleAttributes;
+import com.xtremeprog.sdk.ble.BleGattService;
+import com.xtremeprog.sdk.ble.BleService;
+
 import android.app.ActionBar;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -10,8 +14,10 @@ import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -33,20 +39,20 @@ public class MainActivity extends Activity {
 	private BleDevicesAdapter bleDevicesAdapter;
 	private boolean isScanning;
 
-	private BroadcastReceiver mReceiver = new BroadcastReceiver() {
-
+	private final BroadcastReceiver mBleReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			// TODO Auto-generated method stub
+			Bundle extras = intent.getExtras();
 			String action = intent.getAction();
-			if (BleService.BLE_STATUS_ABNORMAL.equals(action)) {
-				Intent enableIntent = new Intent(
-						BluetoothAdapter.ACTION_REQUEST_ENABLE);
-				startActivity(enableIntent);
-			} else if (BleService.BLE_DEVICE_FOUND.equals(action)) {
-				Bundle extras = intent.getExtras();
-				final BluetoothDevice device = extras
+
+			// 4. 处理 service 发过来的广播
+
+			// 发现设备
+			if (BleService.BLE_DEVICE_FOUND.equals(action)) {
+				BluetoothDevice device = extras
 						.getParcelable(BleService.EXTRA_DEVICE);
+				byte[] scanRecord = extras
+						.getByteArray(BleService.EXTRA_SCAN_RECORD);
 				if (!devicesArray.contains(device)) {
 					devicesArray.add(device);
 					runOnUiThread(new Runnable() {
@@ -58,16 +64,30 @@ public class MainActivity extends Activity {
 						}
 					});
 				}
-			} else if (BleService.BLE_DEVICE_SCANING.equals(action)) {
-				isScanning = true;
-				invalidateOptionsMenu();
-			} else if (BleService.BLE_DEVICE_STOP_SCAN.equals(action)) {
-				isScanning = false;
-				invalidateOptionsMenu();
-			} else if (BleService.BLE_SERVICE_DISCOVERED.equals(action)) {
-				Intent servicesIntent = new Intent(MainActivity.this,
+				return;
+			}
+
+			// 设备已连接
+			if (BleService.BLE_GATT_CONNECTED.equals(action)) {
+				BluetoothDevice device = extras
+						.getParcelable(BleService.EXTRA_DEVICE);
+				BleApplication app = (BleApplication) getApplication();
+				app.setmAddress(device.getAddress());
+
+				Intent aintent = new Intent(MainActivity.this,
 						BleGattServicesActivity.class);
-				startActivity(servicesIntent);
+				startActivity(aintent);
+
+				return;
+			}
+
+			// 发现设备服务
+			if (BleService.BLE_SERVICE_DISCOVERED.equals(action)) {
+				String address = extras.getParcelable(BleService.EXTRA_ADDR);
+				BleApplication app = (BleApplication) getApplication();
+				ArrayList<BleGattService> services = app.getIBle().getServices(
+						address);
+				return;
 			}
 		}
 	};
@@ -97,7 +117,7 @@ public class MainActivity extends Activity {
 					int position, long id) {
 				// TODO Auto-generated method stub
 				BluetoothDevice device = devicesArray.get(position);
-				ConnectBleDevice(device);
+				connectBleDevice(device);
 			}
 		});
 	}
@@ -144,35 +164,37 @@ public class MainActivity extends Activity {
 		super.onResume();
 
 		bleDevicesAdapter.notifyDataSetChanged();
-		registerReceiver(mReceiver, BleService.getIntentFilter());
+
 		invalidateOptionsMenu();
+
+		registerReceiver(mBleReceiver, BleService.getIntentFilter());
 	}
 
 	@Override
 	protected void onStop() {
 		// TODO Auto-generated method stub
 		super.onStop();
-
-		unregisterReceiver(mReceiver);
-		scanBleDevices(false);
+		unregisterReceiver(mBleReceiver);
 		devicesArray.clear();
+
 	}
 
 	private void scanBleDevices(final boolean enable) {
 		devicesArray.clear();
-		bleDevicesAdapter.notifyDataSetChanged();
+
 		BleApplication app = (BleApplication) getApplication();
-		app.getBleService().scanBleDevices(enable);
+		app.getIBle().stopScan();
+		app.getIBle().startScan();
 	}
 
 	private void connectBleDevice(String address) {
 		BleApplication app = (BleApplication) getApplication();
-		app.getBleService().connectBleDevice(address);
+		app.getIBle().requestConnect(address);
 	}
 
-	private void ConnectBleDevice(BluetoothDevice device) {
+	private void connectBleDevice(BluetoothDevice device) {
 		BleApplication app = (BleApplication) getApplication();
-		app.getBleService().connectBleDevice(device);
+		app.getIBle().requestConnect(device.getAddress());
 	}
 
 	private class BleDevicesAdapter extends BaseAdapter {
@@ -206,8 +228,7 @@ public class MainActivity extends Activity {
 						.findViewById(R.id.device_name);
 				holder.deviceAddress = (TextView) convertView
 						.findViewById(R.id.device_address);
-				BluetoothDevice device = (BluetoothDevice) devicesArray
-						.get(position);
+				BluetoothDevice device = devicesArray.get(position);
 				holder.deviceName.setText(device.getName());
 				;
 				holder.deviceAddress.setText(device.getAddress());

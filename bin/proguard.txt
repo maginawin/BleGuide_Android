@@ -10,9 +10,9 @@
 # view AndroidManifest.xml #generated:33
 -keep class com.maginawin.bleguide.BleGattServicesActivity { <init>(...); }
 
-# view AndroidManifest.xml #generated:46
--keep class com.maginawin.bleguide.BleService { <init>(...); }
-
 # view AndroidManifest.xml #generated:24
 -keep class com.maginawin.bleguide.MainActivity { <init>(...); }
+
+# view AndroidManifest.xml #generated:46
+-keep class com.xtremeprog.sdk.ble.BleService { <init>(...); }
 

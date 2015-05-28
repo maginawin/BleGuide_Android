@@ -2,6 +2,9 @@ package com.maginawin.bleguide;
 
 import java.util.List;
 
+import com.xtremeprog.sdk.ble.BleGattService;
+import com.xtremeprog.sdk.ble.BleService;
+
 import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattService;
@@ -21,7 +24,7 @@ import android.widget.TextView;
 public class BleGattServicesActivity extends Activity {
 
 	private ListView mListView;
-	private List<BluetoothGattService> mServices;
+	private List<BleGattService> mServices;
 	private ServiceAdapter mAdapter;
 
 	private BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -31,6 +34,13 @@ public class BleGattServicesActivity extends Activity {
 			// TODO Auto-generated method stub
 			Bundle extras = intent.getExtras();
 			String action = intent.getAction();
+			
+			if (action.equals(BleService.BLE_SERVICE_DISCOVERED)) {
+				BleApplication app = (BleApplication) getApplication();
+				mServices = app.getIBle().getServices(app.getmAddress());
+				mAdapter.notifyDataSetChanged();
+			}
+			
 		}
 	};
 
@@ -46,7 +56,7 @@ public class BleGattServicesActivity extends Activity {
 		// TODO Auto-generated method stub
 		super.onResume();
 		BleApplication app = (BleApplication) getApplication();
-		mServices = app.getBleService().getBluetoothGatt().getServices();
+		mServices = app.getIBle().getServices(app.getmAddress());
 		mAdapter = new ServiceAdapter();
 		mListView.setAdapter(mAdapter);
 		mAdapter.notifyDataSetChanged();
@@ -85,7 +95,7 @@ public class BleGattServicesActivity extends Activity {
 		public View getView(int position, View convertView, ViewGroup parent) {
 			// TODO Auto-generated method stub
 			if (mServices.size() > 0) {
-				BluetoothGattService service = mServices.get(position);
+				BleGattService service = mServices.get(position);
 				ViewHolder holder = new ViewHolder();
 				convertView = LayoutInflater.from(getApplicationContext())
 						.inflate(R.layout.item_ble_devices, parent, false);
